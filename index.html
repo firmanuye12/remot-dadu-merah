@@ -1,502 +1,56 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dice Hack Remote Control</title>
+    <title>Server Maintenance</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .toast { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        .glitch-text {
+            animation: glitch 0.3s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
     </style>
 </head>
-<body>
-    <div class="min-h-screen bg-gradient-to-br from-purple-400 via-blue-500 to-purple-600 flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-white/95 backdrop-blur-sm shadow-2xl border-0 rounded-3xl overflow-hidden">
-            <!-- Header -->
-            <div class="text-center bg-gradient-to-r from-blue-500 to-purple-600 text-white py-6">
-                <div class="flex justify-between items-center px-6">
-                    <div class="flex-1">
-                        <h1 class="text-2xl font-bold tracking-wide">Dice Hack Cah Metro</h1>
-                        <p class="text-blue-100 text-sm mt-1">Versi Monitored - Target: Siap</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button id="syncBtn" class="p-2 text-white hover:bg-white/20 rounded-lg transition-colors" title="Sync dengan Monitoring">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                            </svg>
-                        </button>
-                        <button id="settingsBtn" class="p-2 text-white hover:bg-white/20 rounded-lg transition-colors">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-6 space-y-6">
-                <!-- Monitoring Status -->
-                <div class="bg-gray-100 rounded-xl p-3 space-y-2">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-600">Status Remote:</span>
-                        <div class="flex items-center gap-2">
-                            <div id="statusDot" class="w-2 h-2 rounded-full bg-green-500"></div>
-                            <span id="statusText" class="font-semibold text-green-600">AKTIF</span>
-                        </div>
-                    </div>
-                    <div id="timeRemainingDiv" class="flex items-center justify-between text-sm" style="display: none;">
-                        <span class="text-gray-600">Waktu Tersisa:</span>
-                        <span id="timeRemaining" class="text-blue-600 font-mono flex items-center gap-1">
-                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span id="timeRemainingText"></span>
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-600">Total Request:</span>
-                        <span id="totalRequests" class="text-purple-600 font-semibold">0</span>
-                    </div>
-                </div>
-
-                <!-- Connection Status -->
-                <div class="flex items-center justify-center gap-2">
-                    <div id="connectionDot" class="w-3 h-3 rounded-full bg-red-500"></div>
-                    <span id="connectionStatus" class="font-semibold text-red-600">Disconnected</span>
-                </div>
-
-                <!-- Test Connection Button -->
-                <button id="testBtn" class="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-colors disabled:bg-gray-400">
-                    Test Koneksi Firebase
-                </button>
-
-                <!-- Input Display -->
-                <div class="border-2 border-blue-300 rounded-xl p-4 bg-gray-50">
-                    <input id="inputDisplay" type="text" placeholder="Masukkan angka" class="w-full text-center text-xl font-bold border-0 bg-transparent outline-none" readonly>
-                </div>
-
-                <!-- Number Keypad -->
-                <div class="grid grid-cols-3 gap-3">
-                    <button class="number-btn h-16 text-xl font-bold bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white border-0 rounded-xl shadow-lg transform transition-all duration-150 hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:transform-none" data-number="1">1</button>
-                    <button class="number-btn h-16 text-xl font-bold bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white border-0 rounded-xl shadow-lg transform transition-all duration-150 hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:transform-none" data-number="2">2</button>
-                    <button class="number-btn h-16 text-xl font-bold bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white border-0 rounded-xl shadow-lg transform transition-all duration-150 hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:transform-none" data-number="3">3</button>
-                    <button class="number-btn h-16 text-xl font-bold bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white border-0 rounded-xl shadow-lg transform transition-all duration-150 hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:transform-none" data-number="4">4</button>
-                    <button class="number-btn h-16 text-xl font-bold bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white border-0 rounded-xl shadow-lg transform transition-all duration-150 hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:transform-none" data-number="5">5</button>
-                    <button class="number-btn h-16 text-xl font-bold bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white border-0 rounded-xl shadow-lg transform transition-all duration-150 hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:transform-none" data-number="6">6</button>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="grid grid-cols-2 gap-3">
-                    <button id="deleteBtn" class="h-14 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg transform transition-all duration-150 hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:transform-none">
-                        Hapus
-                    </button>
-                    <button id="sendBtn" class="h-14 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transform transition-all duration-150 hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:transform-none">
-                        Kirim
-                    </button>
-                </div>
-
-                <!-- Last Sent Data -->
-                <div class="bg-green-500 text-white rounded-xl p-4 text-center">
-                    <div class="font-bold text-lg">Data Diterima: <span id="lastSentData">111</span></div>
-                </div>
-
-                <!-- Footer Info -->
-                <div class="text-center text-sm text-gray-600 space-y-1">
-                    <p>Aplikasi ini dimonitor secara real-time</p>
-                    <p>DILARANG DI PERJUAL BELIKAN</p>
-                    <p>KARNA INI PUNYA CAH 12a</p>
-                </div>
-            </div>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+    <div class="text-center bg-gray-800 p-8 rounded-lg shadow-2xl max-w-md w-full">
+        <svg class="mx-auto mb-6 w-24 h-24 text-yellow-500 pulse-animation" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        
+        <h1 class="text-3xl font-bold text-yellow-400 mb-4 glitch-text">
+            Server Sedang Dalam Pemeliharaan
+        </h1>
+        
+        <p class="text-gray-300 mb-6">
+            Mohon maaf, server sedang dalam proses perbaikan dan pemeliharaan. 
+            Kami akan segera kembali online.
+        </p>
+        
+        <div class="flex justify-center space-x-2">
+            <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+            <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse delay-100"></div>
+            <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse delay-200"></div>
+        </div>
+        
+        <div class="mt-6 text-sm text-gray-500">
+            Perkiraan waktu: Segera
         </div>
     </div>
-
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h2 class="text-lg font-semibold mb-4">Pengaturan Server</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-sm font-medium text-gray-700">Server Saat Ini:</label>
-                    <div id="currentServer" class="text-xs text-gray-500 break-all bg-gray-100 p-2 rounded mt-1"></div>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-700">URL Server Baru:</label>
-                    <input id="newServerInput" type="text" placeholder="https://your-project.firebaseio.com/" class="w-full mt-1 border border-gray-300 rounded-md px-3 py-2">
-                    <p class="text-xs text-gray-500 mt-1">* Pastikan sama dengan server monitoring</p>
-                </div>
-                <div class="bg-blue-50 p-3 rounded-lg">
-                    <p class="text-xs text-blue-800">
-                        <strong>Info Sinkronisasi:</strong><br/>
-                        Remote dan monitoring harus menggunakan server Firebase yang sama. 
-                        Setelah mengubah server, gunakan tombol sync untuk memastikan koneksi.
-                    </p>
-                </div>
-                <div class="flex gap-2">
-                    <button id="saveServerBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md">Simpan</button>
-                    <button id="cancelBtn" class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-50">Batal</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Container -->
-    <div id="toastContainer"></div>
-
-    <script>
-        // State variables
-        let serverUrl = "https://blitarr22-6a0d4-default-rtdb.firebaseio.com/";
-        let inputValue = "";
-        let lastSentData = "111";
-        let isConnected = false;
-        let remoteStatus = {
-            isActive: true,
-            activeUntil: null,
-            lastActivity: null,
-            totalRequests: 0
-        };
-
-        // DOM elements
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const timeRemainingDiv = document.getElementById('timeRemainingDiv');
-        const timeRemainingText = document.getElementById('timeRemainingText');
-        const totalRequests = document.getElementById('totalRequests');
-        const connectionDot = document.getElementById('connectionDot');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const inputDisplay = document.getElementById('inputDisplay');
-        const lastSentDataSpan = document.getElementById('lastSentData');
-        const numberBtns = document.querySelectorAll('.number-btn');
-        const deleteBtn = document.getElementById('deleteBtn');
-        const sendBtn = document.getElementById('sendBtn');
-        const testBtn = document.getElementById('testBtn');
-        const syncBtn = document.getElementById('syncBtn');
-        const settingsBtn = document.getElementById('settingsBtn');
-        const settingsModal = document.getElementById('settingsModal');
-        const currentServer = document.getElementById('currentServer');
-        const newServerInput = document.getElementById('newServerInput');
-        const saveServerBtn = document.getElementById('saveServerBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-
-        // Utility functions
-        function normalizeServerUrl(url) {
-            let normalized = url.trim();
-            if (!normalized.endsWith('/')) {
-                normalized += '/';
-            }
-            return normalized;
-        }
-
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `toast p-4 rounded-lg text-white mb-2 ${
-                type === 'success' ? 'bg-green-500' : 
-                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-            }`;
-            toast.textContent = message;
-            
-            document.getElementById('toastContainer').appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-
-        function getTimeRemaining() {
-            if (!remoteStatus.activeUntil) return null;
-            const remaining = remoteStatus.activeUntil - Date.now();
-            if (remaining <= 0) return 'Expired';
-            
-            const hours = Math.floor(remaining / (1000 * 60 * 60));
-            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-            return `${hours}j ${minutes}m`;
-        }
-
-        function isRemoteAllowed() {
-            if (!remoteStatus.isActive) return false;
-            if (remoteStatus.activeUntil && Date.now() > remoteStatus.activeUntil) {
-                return false;
-            }
-            return true;
-        }
-
-        function updateUI() {
-            const normalizedUrl = normalizeServerUrl(serverUrl);
-            
-            // Status indicators
-            statusDot.className = `w-2 h-2 rounded-full ${remoteStatus.isActive ? 'bg-green-500' : 'bg-red-500'}`;
-            statusText.className = `font-semibold ${remoteStatus.isActive ? 'text-green-600' : 'text-red-600'}`;
-            statusText.textContent = remoteStatus.isActive ? 'AKTIF' : 'NONAKTIF';
-
-            // Time remaining
-            const timeRemaining = getTimeRemaining();
-            if (timeRemaining) {
-                timeRemainingDiv.style.display = 'flex';
-                timeRemainingText.textContent = timeRemaining;
-            } else {
-                timeRemainingDiv.style.display = 'none';
-            }
-
-            // Total requests
-            totalRequests.textContent = remoteStatus.totalRequests;
-
-            // Connection status
-            connectionDot.className = `w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`;
-            connectionStatus.className = `font-semibold ${isConnected ? 'text-green-600' : 'text-red-600'}`;
-
-            // Button states
-            const allowed = isRemoteAllowed();
-            numberBtns.forEach(btn => btn.disabled = !allowed);
-            deleteBtn.disabled = !allowed;
-            sendBtn.disabled = inputValue.length < 3 || !allowed;
-            testBtn.disabled = !allowed;
-
-            // Input display
-            inputDisplay.value = inputValue;
-
-            // Last sent data
-            lastSentDataSpan.textContent = lastSentData;
-
-            // Current server in settings
-            currentServer.textContent = normalizedUrl;
-        }
-
-        // Remote monitoring functions
-        async function fetchRemoteStatus() {
-            try {
-                const normalizedUrl = normalizeServerUrl(serverUrl);
-                console.log('Fetching status from:', `${normalizedUrl}control/.json`);
-                
-                const response = await fetch(`${normalizedUrl}control/.json`);
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Fetched control data:', data);
-                    if (data) {
-                        remoteStatus = data;
-                    } else {
-                        // Initialize with default if no data
-                        remoteStatus = {
-                            isActive: true,
-                            activeUntil: null,
-                            lastActivity: Date.now(),
-                            totalRequests: 0
-                        };
-                        // Set initial status on server
-                        await fetch(`${normalizedUrl}control/.json`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(remoteStatus)
-                        });
-                    }
-                    updateUI();
-                }
-            } catch (error) {
-                console.error('Error fetching remote status:', error);
-            }
-        }
-
-        async function updateActivity() {
-            try {
-                const normalizedUrl = normalizeServerUrl(serverUrl);
-                const newStatus = {
-                    ...remoteStatus,
-                    lastActivity: Date.now(),
-                    totalRequests: remoteStatus.totalRequests + 1
-                };
-
-                await fetch(`${normalizedUrl}control/.json`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newStatus)
-                });
-
-                remoteStatus = newStatus;
-                console.log('Activity updated:', newStatus);
-                updateUI();
-            } catch (error) {
-                console.error('Error updating activity:', error);
-            }
-        }
-
-        // Firebase functions
-        async function sendToFirebase(results) {
-            if (!isRemoteAllowed()) {
-                showToast('Remote control sedang nonaktif atau masa aktif telah habis', 'error');
-                connectionStatus.textContent = 'Remote Dinonaktifkan';
-                isConnected = false;
-                updateUI();
-                return;
-            }
-
-            try {
-                const normalizedUrl = normalizeServerUrl(serverUrl);
-                const sendUrl = `${normalizedUrl}b/.json`;
-                console.log('Sending to URL:', sendUrl);
-                console.log('Sending data:', { results: results, timestamp: Date.now() });
-                
-                const response = await fetch(sendUrl, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        results: results,
-                        timestamp: Date.now()
-                    })
-                });
-
-                console.log('Response status:', response.status);
-                const responseData = await response.json();
-                console.log('Response data:', responseData);
-
-                if (response.ok) {
-                    lastSentData = results;
-                    isConnected = true;
-                    connectionStatus.textContent = 'Remote Terhubung';
-                    showToast(`Data berhasil dikirim: ${results}`, 'success');
-                    
-                    await updateActivity();
-                    updateUI();
-                } else {
-                    throw new Error(`Failed to send data: ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Error sending data:', error);
-                isConnected = false;
-                connectionStatus.textContent = 'Disconnected';
-                showToast('Gagal mengirim data', 'error');
-                updateUI();
-            }
-        }
-
-        async function testConnection() {
-            if (!isRemoteAllowed()) {
-                showToast('Remote control sedang nonaktif', 'error');
-                return;
-            }
-
-            try {
-                const normalizedUrl = normalizeServerUrl(serverUrl);
-                const testUrl = `${normalizedUrl}b/.json`;
-                
-                const response = await fetch(testUrl);
-                const data = await response.json();
-                console.log('Test connection - current data:', data);
-                
-                if (response.ok) {
-                    isConnected = true;
-                    connectionStatus.textContent = 'Koneksi Berhasil';
-                    showToast('Test koneksi berhasil!', 'success');
-                    await updateActivity();
-                    updateUI();
-                }
-            } catch (error) {
-                console.error('Test connection failed:', error);
-                isConnected = false;
-                connectionStatus.textContent = 'Test Koneksi Gagal';
-                showToast('Test koneksi gagal', 'error');
-                updateUI();
-            }
-        }
-
-        // Event handlers
-        function handleNumberClick(number) {
-            if (inputValue.length < 6) {
-                inputValue += number;
-                updateUI();
-            }
-        }
-
-        function handleDelete() {
-            inputValue = inputValue.slice(0, -1);
-            updateUI();
-        }
-
-        function handleSend() {
-            if (inputValue.length >= 3) {
-                const formattedResults = inputValue.split('').join(',');
-                console.log('Formatted results:', formattedResults);
-                sendToFirebase(formattedResults);
-                inputValue = '';
-                updateUI();
-            } else {
-                showToast('Masukkan minimal 3 angka', 'error');
-            }
-        }
-
-        function handleSync() {
-            fetchRemoteStatus();
-            showToast('Sinkronisasi dengan monitoring berhasil!', 'success');
-        }
-
-        function showSettings() {
-            settingsModal.classList.remove('hidden');
-            settingsModal.classList.add('flex');
-            newServerInput.value = '';
-        }
-
-        function hideSettings() {
-            settingsModal.classList.add('hidden');
-            settingsModal.classList.remove('flex');
-        }
-
-        function saveServer() {
-            const newUrl = newServerInput.value.trim();
-            if (newUrl) {
-                serverUrl = normalizeServerUrl(newUrl);
-                isConnected = false;
-                connectionStatus.textContent = 'Server Diubah - Test Koneksi';
-                hideSettings();
-                showToast('Server berhasil diubah!', 'success');
-                updateUI();
-                fetchRemoteStatus(); // Fetch status from new server
-            } else {
-                showToast('URL server tidak boleh kosong', 'error');
-            }
-        }
-
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Number buttons
-            numberBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const number = btn.getAttribute('data-number');
-                    handleNumberClick(number);
-                });
-            });
-
-            // Action buttons
-            deleteBtn.addEventListener('click', handleDelete);
-            sendBtn.addEventListener('click', handleSend);
-            testBtn.addEventListener('click', testConnection);
-            syncBtn.addEventListener('click', handleSync);
-
-            // Settings
-            settingsBtn.addEventListener('click', showSettings);
-            cancelBtn.addEventListener('click', hideSettings);
-            saveServerBtn.addEventListener('click', saveServer);
-
-            // Click outside modal to close
-            settingsModal.addEventListener('click', (e) => {
-                if (e.target === settingsModal) {
-                    hideSettings();
-                }
-            });
-
-            // Enter key in server input
-            newServerInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    saveServer();
-                }
-            });
-
-            // Initial setup
-            updateUI();
-            fetchRemoteStatus();
-
-            // Auto-refresh every 3 seconds
-            setInterval(fetchRemoteStatus, 3000);
-        });
-    </script>
 </body>
 </html>
